@@ -1,0 +1,65 @@
+ConnJKSEngine v 1.0 - JKSEngine Connector Tool to Java Keystores
+Copyright (c) Andreas Gruener 2011. All rights reserved.
+
+email: Andreas.Gruener@web.de
+
+This file is part of ConnJKSEngine.
+
+ConnJKSEngine is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 3 as 
+published by the Free Software Foundation.
+
+ConnJKSEngine is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the Lesser GNU General Public License
+along with ConnJKSEngine.  If not, see <http://www.gnu.org/licenses/>.
+=======================================================================
+
+
+WHAT IS ConnJKSEngine?
+=======================================================================
+
+ConnJKSEngine is a simple Java tool for cryptographic operations.
+It serves as connector to the Java world for JKSEngine.
+
+
+HOW IT WORKS
+=======================================================================
+
+ConnJKSEngine uses Java Cryptography Extensions to perform 
+cryptographic operations.
+
+
+HOW TO COMPILE
+=======================================================================
+
+ConnJKSEngine can be compiled with the included makefile.
+
+$ cd <ConnJKSEngine Source Directory>
+$ make
+$ make install
+
+
+HOW TO USE
+=======================================================================
+
+ConnJKSEngine can be used with the following syntax:
+
+ConnOpenSSLJKnCipher --genkey|--encrypt|--decrypt|--sign --alias 
+		<Key Alias> --keystore <Java Keystore> 
+		[--storepass <Keystore Pass>] [--alg <Algorithm>]
+
+--genkey		Generate Key
+--privdec		Decryption Mode
+--sign			Signature Mode
+--getpubkey		Get Public Key from Java KeyStore
+--alias			Java Keystore Key Alias
+--keystore		Java Keystore
+--storepass		Keystore Password, Default: 123456
+--alg			Algorithm
+--provider		KeyStore Provider, Default: 'nCipherKM' 
+
+

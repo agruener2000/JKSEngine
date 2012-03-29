@@ -1,0 +1,205 @@
+JKSEngine v 1.0 - OpenSSL Engine for using Java Keystores with OpenSSL
+Copyright (c) Andreas Gruener 2011. All rights reserved.
+
+email: Andreas.Gruener@web.de
+
+This file is part of JKSEngine.
+
+JKSEngine is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 3 as 
+published by the Free Software Foundation.
+
+JKSEngine is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the Lesser GNU General Public License
+along with JKSEngine.  If not, see <http://www.gnu.org/licenses/>.
+=======================================================================
+
+
+WHAT IS JKSEngine?
+=======================================================================
+
+JKSEngine is a dynamic OpenSSL Engine which can be used to make private 
+key operations with keys stored in Java keystores. In particular it is 
+possible to use different Java cryptography providers and sign or 
+decrypt data with private keys stored in Java keystores.  
+
+
+HOW IT WORKS
+=======================================================================
+
+JKSEngine is a dynamic OpenSSL Engine. It can be dynamically loaded by 
+OpenSSL and it can be used with the OpenSSL command line tool as well 
+as the OpenSSL library. Private key operations are executed through the 
+engine but public key operations are shifted to native OpenSSL routines.
+The engine collects the operational data and information about the key. 
+After that the engine calls a Java tool (ConnJKSEngine) and 
+passes data as well as key information to it.The Java tool executes the 
+actual private key operation and returns the result to the engine. 
+The engine forwards the data to OpenSSL. The Java tool is exchangeable 
+and can be replaced by another tool with the same interface. 
+A description of the interface can be found within 
+section "ConnJKSEngine INTERFACE".  
+
+
+FEATURES
+=======================================================================
+
+The following operations are possible with JKSEngine:
+- Digest Algorithms: 	MD5, SHA1, SHA224, SHA256, SHA384, SHA512, 
+						RIPEMD160
+- Signing Algorithms: 	MD5withRSA, SHA1withRSA, SHA224withRSA, 
+			SHA224withRSA, SHA384withRSA, RIPEMD160withRSA, 
+			SHA512withRSA, SHA1withDSA, SHA224withDSA, 
+			SHA384withDSA, SHA512withDSA
+- Private Key Decryption: RSA
+
+But not only JKSEngine has to support the a certain operation. It is 
+also necessary that the Java tool provides the operation method. 
+ConnJKSEngine promotes the previous mentioned operations.
+Furthermore it is also necessary, that the used Java Cryptography 
+Provider supports the requested method.
+
+
+DEFICIENCIES
+=======================================================================
+
+- ECDSA framework is already included but not usable at the moment.
+- Key generation functions of DSA and RSA are already included but not 
+  usable at the moment 
+
+
+HOW TO COMPILE
+=======================================================================
+
+An engine which can be loaded dynamically occurs as a shared library. 
+It can be compiled and installed with the accompanying makefile.
+
+$ cd <JKSEngine Source Directory>
+$ make 
+$ make install
+
+
+HOW TO USE
+=======================================================================
+
+An OpenSSL engine can be used in two ways. One possibility is to
+use it with the OpenSSL command line utility (1). The other method is
+to use the engine in connection with the OpenSSL library (2).
+
+For indicating a key within the Java keystore, the following syntax is 
+used in connection with the alias of the particular key:
+	
+	<Path to Java Keystore>/<Keystore Name>?alias=<Key Name>
+
+
+(1) Use of JKSEngine with OpenSSL command line utility
+
+Within the command line utility you can specify an engine with the
+switch "-engine <Path to Engine Library>/libJKSEngine.so". The result
+of this switch is, that the engine is used if the called algorithm is
+implemented within the engine. 
+Furthermore the switch "-keyform engine" is needed if you specify a key.
+This assigns the task to load a key to the engine. It is necessary for
+correct use of JKSEngine.
+
+Example:
+
+Creating a certificate signing request with JKSEngine
+
+openssl req -new -sha1 -key /home/test/teststore?alias=key1024 
+	-passin pass:123456 -keyform e -engine /usr/lib/libJKSEngine.so 
+	-out /home/test/testRSA.csr
+
+In this example we use the key with the alias "key1024" in the Java
+keystore "teststore" to create a certificate signing request. It can be
+that the Java keystore is üassword protected therefore the switch 
+"-passin" can be used.
+ 
+(2) Use of JKSEngine with OpenSSL library
+
+This section describes the use of JKSEngine if you create a C program
+using OpenSSL library. 
+
+Include openssl/engine.h and then execute the following commands before
+you use cryptographic functions of OpenSSL.
+
+//Pointer to Engine Structure
+ENGINE *e;						
+//Load Dynamic Engine Support
+ENGINE_load_dynmaic(); 			
+//Try to Get Reference to Engine
+e = ENGINE_by_ID("JKSEngine");	
+// Specify Engine PATH
+ENGINE_ctrl_cmd_string(e, "SO_PATH", "<PATH>/libJKSEngine.so", 0))
+// Add Engine to Internal Engine List of OpenSSL
+ENGINE_ctrl_cmd_string(e, "LIST_ADD", "1", 0);
+//Load Engine
+ENGINE_ctrl_cmd_string(e, "LOAD", NULL, 0); 
+//Set Engine as Default Crypto Operations Provider
+ENGINE_set_default(e,ENGINE_METHOD_ALL);
+
+
+JKSEngine CTRL CMD OPTIONS
+=======================================================================
+
+These options can be used to configure JKSEngine before executing
+a cryptographic operation. 
+
+Using OpenSSL library, the options can be set with a call to:
+	
+	ENGINE_ctrl_cmd_string(e, name, value, 0)
+	
+	e 		- Pointer to Engine Structure
+	name  	- Option Name
+	value 	- Value which should be set
+
+Using OpenSSL command line tool, the options can be set with 
+the "-pre" switch:
+
+	Example:
+		openssl dynamic engine -pre name1:value1 -pre name2:value2 ....
+		
+Using the OpenSSL configuration file, the options can be set on the
+following way:
+
+This possibility is explained in detail on the webpage of
+the OpenSSL project. (http://www.openssl.org/docs/apps/config.html)
+	 
+
+Available JKSEngine Options:
+	SO_PATH				- Path of Shared Library of JKSEngine
+	ID					- ID of JKSEngine
+	KeyStorePass		- Password of Java KeyStore (Default: 123456)
+						  (Can also be specified on cmd line or within 
+						  function calls)
+	JavaConnectorPath	- Path of Java tool (Path to ConnJKSEngine)
+	KeyStoreProvider	- Java Cryptography Provider of used Keystore
+	JavaPath			- Path of Java Runtime Environment
+
+
+ConnJKSEngine INTERFACE
+=======================================================================
+
+ConnJKSEngine --mode --alias <alias> --keystore <keystore> 
+		--storepass <storepass> --alg <alg> --provider <provider>
+
+mode = (gepubkey|privdec|sign|genkey)
+
+--gepubkey	Retrieving Specified Key in x.509 Encoding
+--privdec	Private Key Decryption
+--sign		Creating Signature
+--genkey	Generate Key
+
+--alias		Key Alias
+--keystore	Java KeyStore
+--storepass	Password of KeyStore
+--alg		Algorithm Identifier of Operation
+--provider	KeyStore Provider
+
+
+CHANGELOG
+=======================================================================

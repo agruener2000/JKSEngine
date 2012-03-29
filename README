@@ -1,0 +1,54 @@
+JKSEngine v 1.0 - OpenSSL Engine and connector tool for using Java 
+Keystores with OpenSSL
+Copyright (c) Andreas Gruener 2011. All rights reserved.
+
+email: Andreas.Gruener@web.de
+
+This file is part of JKSEngine.
+
+JKSEngine is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License version 3 as 
+published by the Free Software Foundation.
+
+JKSEngine is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the Lesser GNU General Public License
+along with JKSEngine.  If not, see <http://www.gnu.org/licenses/>.
+=======================================================================
+
+
+WHAT IS JKSEngine?
+=======================================================================
+
+JKSEngine is a project consisting of two programs enabling OpenSSL to
+use Java Keystores. One part of the project is an OpenSSL Engine called
+JKSEngine and the other part is a Java connector tool called ConnJKSEngine.
+Additional information can be found within the README files of
+the appropriate program folders.
+
+
+HOW TO INSTALL
+=======================================================================
+
+JKSEngine as well as ConnJKSEngine can be standardized compiled and 
+installed with the included makefile.
+
+$ cd <JKSEngine Toplevel Source Directory>
+$ make 
+$ make install
+
+Furthermore each if the two parts of JKSEngine is delievered with an
+own makefile. Therefore, it can be compiled for itself and installed
+in individual directories
+
+
+HOW TO USE
+=======================================================================
+
+Usage details are presented within the README file of JKSEngine itself.
+If you execute the overall makefile the two programs will be installed
+in standard directories and you do not need to initialize path
+parameters within the engine.
